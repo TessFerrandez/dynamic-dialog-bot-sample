@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Internal.Http;
 using System;
+using System.Linq;
 
 namespace DynamicDialogApi.Controllers
 {
@@ -23,8 +24,14 @@ namespace DynamicDialogApi.Controllers
             // supports en and sv. I don't bother with countries right now
             if (Request != null)
             {
-                language = ((FrameRequestHeaders)Request.Headers).HeaderAcceptLanguage[0];
-                if (language != "sv" && language != "en")
+                var headerAcceptLanguage = ((FrameRequestHeaders)Request.Headers).HeaderAcceptLanguage[0];
+                var languages = headerAcceptLanguage.Split(',', ';').Where(x => !x.StartsWith("q="));
+                language = languages.First();
+                if (language.StartsWith("en-"))
+                {
+                    language = "en";
+                }
+                else if (language != "sv" && language != "en")
                 {
                     language = "sv";
                 }
